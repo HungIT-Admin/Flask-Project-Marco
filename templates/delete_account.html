@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Account löschen{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow p-4">
+            <h2 class="text-center text-danger">Account löschen</h2>
+            <p class="text-center">⚠ Achtung: Dieser Vorgang kann nicht rückgängig gemacht werden!</p>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    <label class="form-label">{{ form.confirm.label }}</label>
+                    {{ form.confirm(class="form-control") }}
+                </div>
+                <button type="submit" class="btn btn-danger w-100">Endgültig löschen</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
