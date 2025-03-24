@@ -5,11 +5,103 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card shadow p-4 text-center">
+        <div class="card shadow p-4 text-center mb-4">
             <h2 class="mb-4">Willkommen, {{ current_user.email }}!</h2>
             <p class="text-muted">Dies ist dein persönlicher Home-Screen.</p>
-            <hr> 
+            <hr>
+            <!-- Button: Artikel hinzufügen -->
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#artikelModal">➕ Artikel hinzufügen</button>
+        </div>
+
+        <!-- Artikelliste -->
+        <div class="card shadow p-3">
+            <h4>🧾 Deine Artikel</h4>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>Artikelname</th>
+                        <th>Menge</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for artikel in artikel %}
+                    <tr>
+                        <td>{{ artikel.name }}</td>
+                        <td>{{ artikel.menge }}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal{{ artikel.id }}">Details</button>
+
+                            {% if artikel.user_id == current_user.id %}
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ artikel.id }}">Bearbeiten</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <!-- Detail Modal -->
+                    <div class="modal fade" id="detailModal{{ artikel.id }}" tabindex="-1">
+                      <div class="modal-dialog">
+                        <div class="modal-content p-3">
+                          <h5>📝 Details zu "{{ artikel.name }}"</h5>
+                          <p><strong>Menge:</strong> {{ artikel.menge }}</p>
+                          <p><strong>Kommentar:</strong> {{ artikel.kommentar or "Kein Kommentar" }}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Bearbeiten Modal -->
+                    {% if artikel.user_id == current_user.id %}
+                    <div class="modal fade" id="editModal{{ artikel.id }}" tabindex="-1">
+                      <div class="modal-dialog">
+                        <div class="modal-content p-3">
+                          <form action="{{ url_for('artikel_bearbeiten', id=artikel.id) }}" method="POST">
+                            {{ form.csrf_token }}
+                            <div class="form-group mb-2">
+                              <label>Artikelname</label>
+                              <input type="text" name="name" class="form-control" value="{{ artikel.name }}" required>
+                            </div>
+                            <div class="form-group mb-2">
+                              <label>Menge</label>
+                              <input type="number" name="menge" class="form-control" value="{{ artikel.menge }}" required>
+                            </div>
+                            <div class="form-group mb-2">
+                              <label>Kommentar</label>
+                              <textarea name="kommentar" class="form-control">{{ artikel.kommentar }}</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success mt-2">Speichern</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
+
+<!-- Artikel erstellen Modal -->
+<div class="modal fade" id="artikelModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
+      <form action="{{ url_for('artikel_neu') }}" method="POST">
+        {{ form.csrf_token }}
+        <div class="form-group mb-2">
+          <label>Artikelname</label>
+          {{ form.name(class="form-control") }}
+        </div>
+        <div class="form-group mb-2">
+          <label>Menge</label>
+          {{ form.menge(class="form-control") }}
+        </div>
+        <div class="form-group mb-2">
+          <label>Kommentar</label>
+          {{ form.kommentar(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Hinzufügen</button>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}

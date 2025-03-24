@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp, ValidationError
 from models import User  # Falls du prüfen willst, ob eine E-Mail schon existiert
 from flask_login import current_user
@@ -63,3 +63,10 @@ class DeleteAccountForm(FlaskForm):
     def validate_confirm(self, confirm):
         if confirm.data != "LÖSCHEN":
             raise ValidationError("Du musst 'LÖSCHEN' genau so eintippen, um fortzufahren.")
+        
+
+class ArtikelForm(FlaskForm):
+    name = StringField('Artikelname', validators=[DataRequired()])
+    menge = IntegerField('Menge', validators=[DataRequired()])
+    kommentar = TextAreaField('Kommentar')
+    submit = SubmitField('Speichern')
