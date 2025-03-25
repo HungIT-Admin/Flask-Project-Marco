@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, IntegerField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp, ValidationError
-from models import User  # Falls du prüfen willst, ob eine E-Mail schon existiert
+from models import User
 from flask_login import current_user
 
 class RegistrationForm(FlaskForm):
@@ -21,12 +21,11 @@ class RegistrationForm(FlaskForm):
     ])
     submit = SubmitField('Registrieren')
 
-    # Individuelle Validierung: Prüft, ob die E-Mail bereits existiert
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError("Diese E-Mail ist bereits registriert!")
-        
+
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[
         DataRequired(),
@@ -51,7 +50,6 @@ class ChangePasswordForm(FlaskForm):
     ])
     submit = SubmitField('Passwort ändern')
 
-    # Prüft, ob das alte Passwort korrekt ist
     def validate_old_password(self, old_password):
         if not current_user.check_password(old_password.data):
             raise ValidationError("❌ Altes Passwort ist falsch!")
@@ -63,7 +61,6 @@ class DeleteAccountForm(FlaskForm):
     def validate_confirm(self, confirm):
         if confirm.data != "LÖSCHEN":
             raise ValidationError("Du musst 'LÖSCHEN' genau so eintippen, um fortzufahren.")
-        
 
 class ArtikelForm(FlaskForm):
     name = StringField('Artikelname', validators=[DataRequired()])

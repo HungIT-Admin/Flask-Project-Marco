@@ -7,7 +7,6 @@
     <div class="col-md-8">
         <div class="card shadow p-4 text-center mb-4">
             <h2 class="mb-4">Willkommen, {{ current_user.email }}!</h2>
-            <p class="text-muted">Dies ist dein persönlicher Home-Screen.</p>
             <hr>
             <!-- Button: Artikel hinzufügen -->
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#artikelModal">➕ Artikel hinzufügen</button>
@@ -31,49 +30,63 @@
                         <td>{{ artikel.menge }}</td>
                         <td>
                             <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal{{ artikel.id }}">Details</button>
-
-                            {% if artikel.user_id == current_user.id %}
                             <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ artikel.id }}">Bearbeiten</button>
-                            {% endif %}
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ artikel.id }}">Löschen</button>
                         </td>
                     </tr>
 
                     <!-- Detail Modal -->
                     <div class="modal fade" id="detailModal{{ artikel.id }}" tabindex="-1">
-                      <div class="modal-dialog">
-                        <div class="modal-content p-3">
-                          <h5>📝 Details zu "{{ artikel.name }}"</h5>
-                          <p><strong>Menge:</strong> {{ artikel.menge }}</p>
-                          <p><strong>Kommentar:</strong> {{ artikel.kommentar or "Kein Kommentar" }}</p>
+                        <div class="modal-dialog">
+                            <div class="modal-content p-3">
+                                <h5>📝 Details zu "{{ artikel.name }}"</h5>
+                                <p><strong>Menge:</strong> {{ artikel.menge }}</p>
+                                <p><strong>Kommentar:</strong> {{ artikel.kommentar or "Kein Kommentar" }}</p>
+                            </div>
                         </div>
-                      </div>
                     </div>
 
                     <!-- Bearbeiten Modal -->
-                    {% if artikel.user_id == current_user.id %}
                     <div class="modal fade" id="editModal{{ artikel.id }}" tabindex="-1">
-                      <div class="modal-dialog">
-                        <div class="modal-content p-3">
-                          <form action="{{ url_for('artikel_bearbeiten', id=artikel.id) }}" method="POST">
-                            {{ form.csrf_token }}
-                            <div class="form-group mb-2">
-                              <label>Artikelname</label>
-                              <input type="text" name="name" class="form-control" value="{{ artikel.name }}" required>
+                        <div class="modal-dialog">
+                            <div class="modal-content p-3">
+                                <form action="{{ url_for('home') }}" method="POST">
+                                    {{ form.hidden_tag() }}
+                                    <input type="hidden" name="artikel_id" value="{{ artikel.id }}">
+                                    <div class="form-group mb-2">
+                                        <label>Artikelname</label>
+                                        <input type="text" name="name" class="form-control" value="{{ artikel.name }}" required>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label>Menge</label>
+                                        <input type="number" name="menge" class="form-control" value="{{ artikel.menge }}" required>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label>Kommentar</label>
+                                        <textarea name="kommentar" class="form-control">{{ artikel.kommentar }}</textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success mt-2">Speichern</button>
+                                </form>
                             </div>
-                            <div class="form-group mb-2">
-                              <label>Menge</label>
-                              <input type="number" name="menge" class="form-control" value="{{ artikel.menge }}" required>
-                            </div>
-                            <div class="form-group mb-2">
-                              <label>Kommentar</label>
-                              <textarea name="kommentar" class="form-control">{{ artikel.kommentar }}</textarea>
-                            </div>
-                            <button type="submit" class="btn btn-success mt-2">Speichern</button>
-                          </form>
                         </div>
-                      </div>
                     </div>
-                    {% endif %}
+
+                    <!-- Löschen Modal -->
+                    <div class="modal fade" id="deleteModal{{ artikel.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content p-3">
+                                <h5 class="text-danger">🗑️ Artikel wirklich löschen?</h5>
+                                <p>Willst du <strong>{{ artikel.name }}</strong> wirklich dauerhaft entfernen?</p>
+                                <form method="POST" action="{{ url_for('artikel_loeschen', id=artikel.id) }}">
+                                    {{ form.csrf_token }}
+                                    <div class="d-flex justify-content-end gap-2 mt-3">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                                        <button type="submit" class="btn btn-danger">Löschen</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
                 </tbody>
             </table>
@@ -83,25 +96,25 @@
 
 <!-- Artikel erstellen Modal -->
 <div class="modal fade" id="artikelModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content p-3">
-      <form action="{{ url_for('artikel_neu') }}" method="POST">
-        {{ form.csrf_token }}
-        <div class="form-group mb-2">
-          <label>Artikelname</label>
-          {{ form.name(class="form-control") }}
+    <div class="modal-dialog">
+        <div class="modal-content p-3">
+            <form action="{{ url_for('home') }}" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group mb-2">
+                    <label>Artikelname</label>
+                    {{ form.name(class="form-control") }}
+                </div>
+                <div class="form-group mb-2">
+                    <label>Menge</label>
+                    {{ form.menge(class="form-control") }}
+                </div>
+                <div class="form-group mb-2">
+                    <label>Kommentar</label>
+                    {{ form.kommentar(class="form-control") }}
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Hinzufügen</button>
+            </form>
         </div>
-        <div class="form-group mb-2">
-          <label>Menge</label>
-          {{ form.menge(class="form-control") }}
-        </div>
-        <div class="form-group mb-2">
-          <label>Kommentar</label>
-          {{ form.kommentar(class="form-control") }}
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Hinzufügen</button>
-      </form>
     </div>
-  </div>
 </div>
 {% endblock %}
