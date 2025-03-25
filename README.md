@@ -35,7 +35,7 @@ Sie erlaubt das Verwalten von Artikeln, Benutzeraccounts und bietet sowohl ein W
 - Die Applikation ist online zugänglich unter:
 
   ➤ **Frontend (Browser):** https://<dein-benutzername>.pythonanywhere.com  
-  ➤ **API (GET):** `https://<dein-benutzername>.pythonanywhere.com/api/artikel`
+  ➤ **API (GET):** `https://lager-meili09.pythonanywhere.com/api/artikel`
 
 - Die API erfordert Token-basierte Authentifizierung (`Authorization` Header)
 - Die Datenbank ist weiterhin extern gehostet (nicht auf PythonAnywhere)
