@@ -41,7 +41,7 @@ def register():
             return redirect(url_for("register"))
 
         # Setzt automatisch die Rolle "user"
-        user = User(email=form.email.data, role="user")  
+        user = User(email=form.email.data, role="user")
         user.set_password(form.password.data)
 
         db.session.add(user)
@@ -85,7 +85,7 @@ def admin_dashboard():
     if current_user.role != "admin":
         flash("❌ Zugriff verweigert! Nur für Admins.", "danger")
         return redirect(url_for("profile"))
-    
+
     return render_template("admin.html")
 
 @app.route("/change_password", methods=["GET", "POST"])
