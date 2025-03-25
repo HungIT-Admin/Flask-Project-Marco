@@ -2,8 +2,8 @@ from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from models import db, User
-from forms import RegistrationForm, LoginForm, ChangePasswordForm, DeleteAccountForm
+from models import db, User, Artikel
+from forms import RegistrationForm, LoginForm, ChangePasswordForm, DeleteAccountForm, ArtikelForm
 from config import Config
 
 app = Flask(__name__)
@@ -29,7 +29,9 @@ def index():
 @app.route("/home")
 @login_required
 def home():
-    return render_template("home.html")
+    artikel = Artikel.query.all()
+    form = ArtikelForm()
+    return render_template("home.html", artikel=artikel, form=form)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -123,6 +125,47 @@ def delete_account():
 
     return render_template("delete_account.html", form=form)
 
+@app.route('/artikel')
+@login_required
+def artikel_liste():
+    artikel = Artikel.query.all()
+    return render_template('artikel_liste.html', artikel=artikel)
+
+@app.route('/artikel/neu', methods=['POST'])
+@login_required
+def artikel_neu():
+    form = ArtikelForm()
+    if form.validate_on_submit():
+        neuer_artikel = Artikel(
+            name=form.name.data,
+            menge=form.menge.data,
+            kommentar=form.kommentar.data,
+            user_id=current_user.id
+        )
+        db.session.add(neuer_artikel)
+        db.session.commit()
+        flash('Artikel hinzugefügt!', 'success')
+        return redirect(url_for('artikel_liste'))
+    return render_template('artikel_form.html', form=form)
+
+@app.route('/artikel/<int:id>/bearbeiten', methods=['GET', 'POST'])
+@login_required
+def artikel_bearbeiten(id):
+    artikel = Artikel.query.get_or_404(id)
+    if artikel.user_id != current_user.id:
+        flash('Keine Berechtigung.', 'danger')
+        return redirect(url_for('artikel_liste'))
+    
+    form = ArtikelForm(obj=artikel)
+    if form.validate_on_submit():
+        artikel.name = form.name.data
+        artikel.menge = form.menge.data
+        artikel.kommentar = form.kommentar.data
+        db.session.commit()
+        flash('Artikel aktualisiert!', 'success')
+        return redirect(url_for('artikel_liste'))
+    return render_template('artikel_form.html', form=form)
+
 
 @app.route("/profile")
 @login_required
@@ -140,5 +183,5 @@ def logout():
 
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()
+        db.create_all()  # ➜ erstellt alle Tabellen, falls sie noch nicht existieren
     app.run(debug=True)

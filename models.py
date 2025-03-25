@@ -1,9 +1,21 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_bcrypt import Bcrypt
+from datetime import datetime
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
+
+class Artikel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    menge = db.Column(db.Integer, nullable=False)
+    kommentar = db.Column(db.Text)
+    erstellt_am = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    user = db.relationship('User', backref='artikel')
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
